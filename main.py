@@ -41,7 +41,7 @@ def receivefile():
 
 def do_score(datafile):
   sc = scorer.Scorer()
-  ok, error = sc.load_data(datafile)
+  ok, error = sc.load_data(datafile, True)
   os.remove(datafile)
   if (not ok):
     print("Error template? " + error)
