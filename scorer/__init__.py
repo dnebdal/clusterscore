@@ -22,11 +22,12 @@ class Scorer:
     self.first_set = pandas.read_pickle(data1, compression="gzip")
     self.second_set = pandas.read_pickle(data2, compression="gzip")
   
-  def load_data(self, exprfile):
+  def load_data(self, exprfile, center=False):
     self.expr = pandas.read_csv(exprfile, sep="\t", index_col=0)
     probes1_ok = all(self.first_set.index.isin(self.expr.index))
     probes2_ok = all(self.second_set.index.isin(self.expr.index))
-    self.expr = center_scale_row(self.expr)
+    if center:
+      self.expr = center_scale_row(self.expr)
     
     if not all([probes1_ok, probes2_ok]):
       return (False, "One or more of the scoring genes are missing from the expression file")
