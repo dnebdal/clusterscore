@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Cluster scorer</title>
+<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1>A minimal proof-of-concept cluster scorer.</h1>
+<p>To use, upload a gene expression file; each sample in the file will be assigned to a cluster.</p>
+<p>The file must meet the following requirements:<br/>
+<ul>
+<li>The first column is gene names.
+<li>The rest of the columns are samples.
+<li>The dataset must include all genes in the <a href="/static/geneset.txt">scoring set</a>.
+<li>The fields are separated with tabs (&bsol;t).
+</ul>
+</p>
+<h2>Upload expression file</h2>
+<form action="/scorefile" method="post" enctype="multipart/form-data" >
+<input type="file" id="file" name="file" /></br>
+<input type="submit" />
+</form>
+</body>
+</html>
