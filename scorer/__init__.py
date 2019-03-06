@@ -17,8 +17,8 @@ class Scorer:
   classnum = {'A':4, 'B':5, 'C':6}
   def __init__(self):
     #self.first_set  = pandas.read_pickle("first_set.pickle")
-    data2 = pkg_resources.resource_stream(__name__, "/first_set.pickle")
-    data1 = pkg_resources.resource_stream(__name__, "/second_set.pickle")
+    data1 = pkg_resources.resource_stream(__name__, "/first_set.pickle")
+    data2 = pkg_resources.resource_stream(__name__, "/second_set.pickle")
     self.first_set = pandas.read_pickle(data1, compression="gzip")
     self.second_set = pandas.read_pickle(data2, compression="gzip")
   
@@ -34,7 +34,7 @@ class Scorer:
     # This would be a sensible time to check for NAs
     return (True, "")
   
-  def score(self):
+  def score(self, keep_junk=False):
     expr1   = self.expr.loc[self.first_set.index]
     scores1 = expr1.mul(self.first_set, axis=0).sum(axis=0)
     is_ac    = scores1 < 1.20653865666178
@@ -50,7 +50,8 @@ class Scorer:
 
     # Translate classnames to class numbers
     results = results.assign(Classnum = [self.classnum[x] for x in results.Class] )
-    results = results.loc[:, ["Class", "Classnum"]]
+    if not keep_junk:
+      results = results.loc[:, ["Class", "Classnum"]]
     self.results = results
   
   def get_results(self):
