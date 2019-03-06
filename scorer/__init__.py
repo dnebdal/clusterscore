@@ -9,7 +9,7 @@ import pkg_resources
 # Median center rows,
 # then divide rows by their stdDev
 def center_scale_row(df):
-  df = df.sub(df.median(axis=1), axis=0)
+  df = df.sub(df.mean(axis=1), axis=0)
   df = df.div(df.std(axis=1), axis=0)
   return df
   
