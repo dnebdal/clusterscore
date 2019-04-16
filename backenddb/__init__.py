@@ -23,8 +23,8 @@ from enum import Enum
     (...)
     C: Poll /state/id
     S: return 'SCORED'
-    C: follows link to /file/id/CLUSTERS
-    S: sends bdb.get_files['CLUSTERS']
+    C: fetches /file/id/CLUSTERS
+    S: sends bdb.get_files(id)['CLUSTERS']
     C: yay.
     (...)
     C: (Still on /result/id)
