@@ -28,3 +28,4 @@ If you're just testing, "." should work, but will dump files in the script direc
 * Python3
 * py3-flask 3.6 or newer
 * py3-pandas
+* py3-sqlite3
