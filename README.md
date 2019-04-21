@@ -23,3 +23,8 @@ There are settings for the temporary storage directories near the top of the mai
 By default these are /tmp/results and /tmp/uploads.
 If you're running on windows you probably want to change this. 
 If you're just testing, "." should work, but will dump files in the script directory.
+
+# Requirements
+* Python3
+* py3-flask 3.6 or newer
+* py3-pandas
