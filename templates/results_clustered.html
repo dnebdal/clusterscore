@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Scoring done</title>
+<meta charset="utf-8"/>
+</head>
+<body>
+<h1>Done</h1>
+<p>The cluster scoring for <tt>{{ token }}</tt> is done.
+You can download the results here:
+<br/><a href="/files/clusters/{{ token }}">{{ token }}.clusters.csv</a>
+</p>
+
+<h2>Messages:</h2>
+<p>
+<pre>{{ messages }}</pre>
+</p>
+
+<h2>Survival</h2>
+<p>
+You can also upload survival data to do a survival analysis on the calculated clusters.
+The file must meet the following requirements:
+<ul>
+<li>The first column is the sample id
+<li>The second column is the followup time (as a number).
+<li>The third column is the status at end of followup (0=no event, 1=event).
+<li>The time is a number with no unit. Decimals are ok, using a dot.
+<li>The fields are separated with tabs (\t).
+<li>All sample ids in the survival file must also exist in the clustering result.
+</ul>
+<br/>You can download an example file <a href="/static/survival_example.txt">here</a>,
+which should work with the example expression file. 
+Like that file, this is synthetically generated, "fake", data.
+</br>
+</p>
+<form action="/clusterfile" method="post" enctype="multipart/form-data" >
+<input type="file" id="file" name="file" /></br>
+<input type="submit" />
+</form>
+
+<p><a href="/">Start again</a></p>
+</body>
+</html>
