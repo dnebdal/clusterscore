@@ -59,7 +59,7 @@ def make_surv(names, scale, event_frac):
     N = len(names)
     followup = numpy.random.gamma(2, scale=scale, size=N)
     event = numpy.random.choice(a=[0,1], size=N, p=[1-event_frac, event_frac], replace=True)
-    return pandas.DataFrame({'sampleid':names, 'followup':followup, 'event':event})
+    return pandas.DataFrame({'Sample':names, 'followup':followup, 'event':event})
 
 # Gene expression
 res = pandas.DataFrame(index=allgenes)
