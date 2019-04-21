@@ -2,6 +2,7 @@ import sqlite3
 import base64
 import secrets
 from enum import Enum
+import threading
 
 """
 [C]lient, [S]erver, [W]orker.
@@ -72,6 +73,8 @@ class States(Enum):
     GOTSURV         = 4
     SURV_WORK       = 5
     SURVDONE        = 6
+    FILE_FAILED     = 7
+    SURV_FAILED     = 8
     
 class Filetypes(Enum):
     EXPRESSION  = 1
@@ -82,9 +85,9 @@ class Filetypes(Enum):
 
 class BackendDB:
     states = ('')
-    
     def __init__(self):
-        self.c = sqlite3.connect("state.sqlite", isolation_level = None)
+        self.mtx = threading.RLock()
+        self.c = sqlite3.connect("state.sqlite", isolation_level = None, check_same_thread=False)
         
         self.c.execute("""
             CREATE TABLE IF NOT EXISTS state (
@@ -105,6 +108,14 @@ class BackendDB:
                 UNIQUE(id,filetype)
             );""")
         
+        self.c.execute("""
+            CREATE TABLE IF NOT EXISTS messages (
+                counter integer primary key,
+                id char(14) not null,
+                added int not null,
+                message text not null
+            );""")
+        
         
     """ Creates a random text ID we can send to the user.
         This needs to be unguessable: If you can predict the next/previous
@@ -122,8 +133,15 @@ class BackendDB:
     def set_state(self, id, state):
         if not type(state) == States:
             raise Exception("state is not a backenddb.States")
-        self.c.execute("UPDATE state SET state=? WHERE id=?", (state.value, id))
+        with self.mtx:
+            self.c.execute("UPDATE state SET state=? WHERE id=?", (state.value, id))
 
+    def get_state(self, id):
+        with self.mtx:
+            res = self.c.execute("SELECT state from state where id=?", (id,))
+            res = res.fetchone()
+        return States(res[0])
+    
     def create(self, id=None, state=None):
         if id is None:
             id = self.make_id()
@@ -131,36 +149,52 @@ class BackendDB:
             state = States.NOFILE
         if not type(state) == States:
             raise Exception("state is not a backenddb.States")
-        self.c.execute("""
-            INSERT INTO state(id,state, added) 
-            VALUES (?,?, datetime("now"))            
-            """, (id, state.value) )
+        with self.mtx:
+            self.c.execute("""
+                INSERT INTO state(id,state, added) 
+                VALUES (?,?, datetime("now"))            
+                """, (id, state.value) )
         return id
     
     """Get the IDs of all entries older than the given minage (in fractional days)"""
     def get_old(self, minage=1):
-        res = self.c.execute("""
-            SELECT id FROM state 
-            WHERE (julianday('now')-julianday(added)) >=?
-            """, (minage, )).fetchall()
-        res = [i[0] for i in res]
+        with self.mtx:
+            res = self.c.execute("""
+                SELECT id FROM state 
+                WHERE (julianday('now')-julianday(added)) >=?
+                """, (minage, )).fetchall()
+            res = [i[0] for i in res]
         return(res)
     
     def get_files(self, id):
-        files = self.c.execute("""
-            SELECT filename,filetype
-            FROM files WHERE id=?""", (id,))
-        res = { Filetypes(t).name : n for n,t in files }
+        with self.mtx:
+            files = self.c.execute("""
+                SELECT filename,filetype
+                FROM files WHERE id=?""", (id,))
+            res = { Filetypes(t).name : n for n,t in files }
         return(res)
     
-    def add_file(self, id, filetype):
+    def add_file(self, token, filename, filetype):
         if not type(filetype) == Filetypes:
             raise Exception("filetype is not a backenddb.Filetypes")
-        filename = id + "." + filetype.name
-        self.c.execute("""
-            INSERT INTO files(id,filename,filetype)
-            VALUES (?, ?, ?);
-            """, (id,filename,filetype.value))
+        with self.mtx:
+            self.c.execute("""
+                INSERT INTO files(id,filename,filetype)
+                VALUES (?, ?, ?);
+                """, (token,filename,filetype.value))
         
-        
-        
+    def add_message(self, token, message):
+        with self.mtx:
+            self.c.execute("""
+                INSERT INTO messages(id,added,message)
+                VALUES (?, julianday('now'), ?)
+                """, (token, message) )
+    
+    def get_messages(self, token):
+        with self.mtx:
+            res = self.c.execute("""
+                SELECT strftime('%Y-%m-%d %H:%M:%f', added) AS time, message
+                FROM messages
+                WHERE id = ? ORDER BY added ASC
+                """, (token,) )
+        return ["[%s] %s" % i for i in res.fetchall()]
