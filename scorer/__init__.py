@@ -78,6 +78,8 @@ class Scorer:
     return outfile
 
   def score_surv(self, plotfile, textfile):
+    import matplotlib as mpl
+    mpl.use('Agg')
     import matplotlib.pyplot as plt
     both = self.results.merge(self.surv, left_index=True, right_index=True)
     
