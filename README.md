@@ -26,6 +26,10 @@ If you're just testing, "." should work, but will dump files in the script direc
 
 # Requirements
 * Python3
-* py3-flask 3.6 or newer
-* py3-pandas
-* py3-sqlite3
+
+The following python3 packages:
+* flask 3.6 or newer
+* pandas
+* sqlite3
+* matplotlib
+* lifelines (https://github.com/CamDavidsonPilon/lifelines)
