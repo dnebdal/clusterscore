@@ -5,6 +5,8 @@ import os.path
 import pandas
 import time
 import pkg_resources
+import lifelines
+
 
 # Median center rows,
 # then divide rows by their stdDev
@@ -33,6 +35,15 @@ class Scorer:
       return (False, "One or more of the scoring genes are missing from the expression file")
     # This would be a sensible time to check for NAs
     return (True, "")
+  
+  def load_surv(self, survfile, clusterfile):
+    try:
+      self.surv = pandas.read_csv(survfile, sep="\t", index_col=0).iloc[:, 0:2]
+      self.surv.columns = ['followup', 'event']
+      self.results = pandas.read_csv(clusterfile, sep="\t", index_col=0)
+      return (True, "")
+    except e:
+      return (False, str(e))
   
   def score(self, keep_junk=False):
     expr1   = self.expr.loc[self.first_set.index]
@@ -66,3 +77,27 @@ class Scorer:
     self.results.to_csv(outfile, sep="\t", index_label="Sample")
     return outfile
 
+  def score_surv(self, plotfile, textfile):
+    import matplotlib.pyplot as plt
+    both = self.results.merge(self.surv, left_index=True, right_index=True)
+    
+    # Plot
+    ax = plt.subplot(111)
+    kmf = lifelines.KaplanMeierFitter()
+    for group, grouped in both.groupby("Class"):
+      kmf.fit(grouped["followup"], grouped["event"], label=group)
+      kmf.plot(ax=ax)
+    plt.savefig(plotfile)
+    
+    # Text
+    both = both.iloc[:, [0,2,3] ]
+    mlt = lifelines.statistics.multivariate_logrank_test(both.followup, both.Class, both.event)
+    plt = lifelines.statistics.pairwise_logrank_test(both.followup, both.Class, both.event)
+    
+    multi_res     = mlt._to_string().split("\n")
+    pairwise_res  = plt._to_string().split("\n")
+    multi_res[0] = "Multivariate logrank test:"
+    pairwise_res[0] = "Pairwise logrank test:"
+    res = "\n".join(multi_res) + "\n\n###\n\n"+"\n".join(pairwise_res)
+    with open(textfile, "w") as f:
+      f.write(res)
