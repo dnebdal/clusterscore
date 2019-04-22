@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Scoring done</title>
+<meta charset="utf-8"/>
+</head>
+<body>
+<h1>Done</h1>
+<p>The cluster scoring for <tt>{{ token }}</tt> is done.
+You can download the results here:
+<br/><a href="/files/clusters/{{ token }}.csv">{{ token }}.clusters.csv</a>
+</p>
+
+<h2>Messages:</h2>
+<p>
+<pre>{{ messages }}</pre>
+</p>
+
+<h2>Survival</h2>
+<p>
+<img src="/files/kmplot/{{ token }}.png"/>
+</p>
+<p>
+<pre>{{ kmtext }}</pre>
+<a href="/files/kmtext/{{ token }}.txt">Download</a>
+</p>
+<p><a href="/">Start again</a></p>
+</body>
+</html>
