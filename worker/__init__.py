@@ -1,4 +1,5 @@
 import os
+import os.path
 import scorer
 import backenddb as bdb
 
@@ -12,9 +13,10 @@ class Worker:
         self.db.set_state(token, bdb.States.SCORE_WORK)
         self.db.add_message(token, 'Received file')
         expr_file = self.db.get_files(token)['EXPRESSION']
-        status,res = self.do_score(expr_file)
+        outfile = os.path.join(self.OUTPUT_FOLDER, "%s.KMTEXT.csv" % (token, ) ) 
+        status,res = self.do_score(expr_file, outfile)
         if (status):
-            self.db.add_file(token, res, bdb.Filetypes.CLUSTERS)
+            self.db.add_file(token, outfile, bdb.Filetypes.CLUSTERS)
             self.db.set_state(token, bdb.States.SCORED)
             self.db.add_message(token, 'Work finished')
         else:
@@ -37,14 +39,14 @@ class Worker:
             self.db.set_state(token, bdb.States.SURV_FAILED)
             self.db.add_message(token, res)
 
-    def do_score(self, datafile):
+    def do_score(self, datafile, outfile):
         sc = scorer.Scorer()
         ok, error = sc.load_data(datafile, True)
         if (not ok):
             return (False,error)
         sc.score()
-        outfile = sc.save(self.OUTPUT_FOLDER)
-        return (True,outfile)
+        outfile = sc.save(outfile)
+        return (True, "")
     
     def do_surv(self, token, survfile, clusterfile):
         kmplotfile = os.path.join(self.OUTPUT_FOLDER, token+".KMPLOT.png")

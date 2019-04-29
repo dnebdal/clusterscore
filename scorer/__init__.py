@@ -68,12 +68,7 @@ class Scorer:
   def get_results(self):
     return self.results
   
-  def save(self, outdir):
-    md5 = hashlib.new("md5")
-    md5.update("".join(self.expr.columns).encode("utf-8"))
-    md5 = base64.b32encode( md5.digest() ).decode("ascii")[0:5]
-    filename = time.strftime("%Y-%m-%d-%H-%M-") + md5 + ".csv"
-    outfile = os.path.join(outdir, filename)
+  def save(self, outfile):
     self.results.to_csv(outfile, sep="\t", index_label="Sample")
     return outfile
 
