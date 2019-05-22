@@ -24,6 +24,8 @@ By default these are /tmp/results and /tmp/uploads.
 If you're running on windows you probably want to change this. 
 If you're just testing, "." should work, but will dump files in the script directory.
 
+To automatically delete old uploaded/genereated files, look at the delete\_old\_files.sh script.
+
 # Requirements
 * Python3
 
