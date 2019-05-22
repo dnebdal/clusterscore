@@ -14,7 +14,7 @@ class Worker:
         self.db.add_message(token, 'Received file')
         expr_file = self.db.get_files(token)['EXPRESSION']
         outfile = os.path.join(self.OUTPUT_FOLDER, "%s.KMTEXT.csv" % (token, ) ) 
-        status,res = self.do_score(expr_file, outfile)
+        status,res = self.do_score(token, expr_file, outfile)
         if (status):
             self.db.add_file(token, outfile, bdb.Filetypes.CLUSTERS)
             self.db.set_state(token, bdb.States.SCORED)
@@ -39,10 +39,13 @@ class Worker:
             self.db.set_state(token, bdb.States.SURV_FAILED)
             self.db.add_message(token, res)
 
-    def do_score(self, datafile, outfile):
+    def do_score(self, token, datafile, outfile):
         sc = scorer.Scorer()
         ok, error = sc.load_data(datafile, True)
-        if (not ok):
+        if ok:
+            self.db.add_message(token, error)
+        else:
+            self.db.add_message(token, res)
             return (False,error)
         sc.score()
         outfile = sc.save(outfile)

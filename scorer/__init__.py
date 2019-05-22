@@ -26,15 +26,22 @@ class Scorer:
   
   def load_data(self, exprfile, center=False):
     self.expr = pandas.read_csv(exprfile, sep="\t", index_col=0)
-    probes1_ok = all(self.first_set.index.isin(self.expr.index))
-    probes2_ok = all(self.second_set.index.isin(self.expr.index))
+    probes1_ok = self.first_set.index.isin(self.expr.index)
+    probes2_ok = self.second_set.index.isin(self.expr.index)
     if center:
       self.expr = center_scale_row(self.expr)
     
-    if not all([probes1_ok, probes2_ok]):
-      return (False, "One or more of the scoring genes are missing from the expression file")
+    ok1 = sum(probes1_ok) / len(probes1_ok)
+    ok2 = sum(probes2_ok) / len(probes2_ok)
+
+    if ok1 < 0.5 or ok2 < 0.5:
+      return (False, "Missing more than 50% of the genes in a subgroup")
+
+    if ok1 < 1 or ok2 < 1:
+      return (True, "Some scoring genes are missing from the expression set. Continuing, but the scoring will be less precise.")
+
     # This would be a sensible time to check for NAs
-    return (True, "")
+    return (True, "Found all scoring genes in the expression set.")
   
   def load_surv(self, survfile, clusterfile):
     try:
