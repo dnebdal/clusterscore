@@ -90,7 +90,7 @@ class Scorer:
     kmf = lifelines.KaplanMeierFitter()
     for group, grouped in both.groupby("Class"):
       kmf.fit(grouped["followup"], grouped["event"], label=group)
-      kmf.plot(ax=ax)
+      kmf.plot(ax=ax, ci_show=False)
     plt.savefig(plotfile)
     
     # Text
