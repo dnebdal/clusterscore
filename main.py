@@ -16,7 +16,7 @@ from flask import Flask
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024 # 64 MB max upload
+app.config['MAX_CONTENT_LENGTH'] = 250 * 1024 * 1024 # 64 MB max upload
 app.secret_key = "random secret key goes here and is random"
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
