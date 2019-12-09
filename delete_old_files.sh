@@ -7,7 +7,7 @@
 
 # There is an obvious race condition in this: If a thing ages out while we're deleting, we may 
 # delete only the file entries and states, but not the files.
-# To fix this, we give ourselves 0.01 day (Â~15 min) leeway.
+# To fix this, we give ourselves 0.01 day (ca 15 min) leeway.
 # This can fail the other way (delete the file but not the entry), but that fixes itself
 # with nothing more than log warnings next time around.
 
